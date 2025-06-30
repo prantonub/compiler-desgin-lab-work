@@ -1,0 +1,2 @@
+This is Lab 1's content.
+Welcome to file handling in C!
