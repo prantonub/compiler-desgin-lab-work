@@ -1,2 +1,8 @@
-This is Lab 1's content.
-Welcome to file handling in C!
+#include <stdio.h>
+int main() {
+    int a = 5, b = 10, sum;
+    sum = a + b;
+    printf("Sum = %d\n", sum);
+    return 0;
+}
+
