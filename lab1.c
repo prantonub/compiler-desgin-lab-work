@@ -3,79 +3,106 @@
 #include <string.h>
 #include <ctype.h>
 
-// Function to check whether a given word is a C keyword
-int isKeyword(char buffer[]) {
+int isKeyword(char buffer[])
+{
     char keywords[32][10] = {
         "auto", "break", "case", "char", "const", "continue", "default",
         "do", "double", "else", "enum", "extern", "float", "for", "goto",
         "if", "int", "long", "register", "return", "short", "signed",
         "sizeof", "static", "struct", "switch", "typedef", "union",
-        "unsigned", "void", "volatile", "while"
-    };
+        "unsigned", "void", "volatile", "while"};
 
-    // Loop through all keywords and compare with buffer
-    for (int i = 0; i < 32; ++i) {
-        if (strcmp(keywords[i], buffer) == 0) {
-            return 1; // It's a keyword
+    for (int i = 0; i < 32; ++i)
+    {
+        if (strcmp(keywords[i], buffer) == 0)
+        {
+            return 1;
         }
     }
-    return 0; // Not a keyword
+    return 0;
 }
 
-int main() {
-    char ch, buffer[15]; // buffer to store each word
-    FILE *fp, *out;      // file pointers
-    int j = 0;           // buffer index
+int isOperator(char ch)
+{
+    return (ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
+            ch == '=' || ch == '<' || ch == '>' || ch == '%' ||
+            ch == '!' || ch == '&' || ch == '|');
+}
 
-    // Open input file for reading
-    fp = fopen("lab1.txt", "r");
-    if (fp == NULL) {
-        printf("Error opening input file.\n");
+int isSpecialSymbol(char ch)
+{
+    return (ch == ';' || ch == ',' || ch == '(' || ch == ')' ||
+            ch == '{' || ch == '}' || ch == '[' || ch == ']');
+}
+
+int main()
+{
+    char ch, buffer[15];
+    FILE *fpInput, *fpOutput;
+    int j = 0;
+
+    fpInput = fopen("lab1.txt", "r");
+    fpOutput = fopen("output.txt", "w");
+
+    if (fpInput == NULL || fpOutput == NULL)
+    {
+        printf("Error opening file.\n");
         return 1;
     }
 
-    // Open output file for writing
-    out = fopen("output.txt", "w");
-    if (out == NULL) {
-        printf("Error opening output file.\n");
-        fclose(fp);
-        return 1;
-    }
-
-    // Read character by character until end of file
-    while ((ch = fgetc(fp)) != EOF) {
-        if (isalnum(ch)) {
-            // If character is alphanumeric, store it in buffer
+    while ((ch = fgetc(fpInput)) != EOF)
+    {
+        if (isalnum(ch))
+        {
             buffer[j++] = ch;
         }
-        // If separator is encountered and buffer has content
-        else if ((ch == ' ' || ch == '\n' || ch == '\t' || ch == ',' || ch == ';') && j != 0) {
-            buffer[j] = '\0'; // Null-terminate the word
-            j = 0; // Reset buffer index
+        else
+        {
+            if (j != 0)
+            {
+                buffer[j] = '\0';
+                j = 0;
+                if (isKeyword(buffer))
+                    fprintf(fpOutput, "%s is keyword\n", buffer);
+                else
+                    fprintf(fpOutput, "%s is identifier\n", buffer);
+            }
 
-            // Check if buffer is a keyword or identifier
-            if (isKeyword(buffer))
-                fprintf(out, "%s is keyword\n", buffer);
-            else
-                fprintf(out, "%s is identifier\n", buffer);
+            if (isOperator(ch))
+            {
+                char next = fgetc(fpInput);
+                if ((ch == '=' && next == '=') ||
+                    (ch == '!' && next == '=') ||
+                    (ch == '<' && next == '=') ||
+                    (ch == '>' && next == '='))
+                {
+                    fprintf(fpOutput, "%c%c is operator\n", ch, next);
+                }
+                else
+                {
+                    ungetc(next, fpInput);
+                    fprintf(fpOutput, "%c is operator\n", ch);
+                }
+            }
+            else if (isSpecialSymbol(ch))
+            {
+                fprintf(fpOutput, "%c is special symbol\n", ch);
+            }
         }
     }
 
-    // Handle last word if file ends without space
-    if (j != 0) {
+    if (j != 0)
+    {
         buffer[j] = '\0';
         if (isKeyword(buffer))
-            fprintf(out, "%s is keyword\n", buffer);
+            fprintf(fpOutput, "%s is keyword\n", buffer);
         else
-            fprintf(out, "%s is identifier\n", buffer);
+            fprintf(fpOutput, "%s is identifier\n", buffer);
     }
 
-    // Close both files
-    fclose(fp);
-    fclose(out);
+    fclose(fpInput);
+    fclose(fpOutput);
 
-    // Open the output file in Notepad (only works on Windows)
-    system("notepad output.txt");
-
+    printf("Output run successfully open output.txt.\n");
     return 0;
 }

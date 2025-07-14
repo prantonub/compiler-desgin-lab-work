@@ -1,18 +1,37 @@
-include is identifier
-stdioh is identifier
 int is keyword
 main is identifier
+( is special symbol
+) is special symbol
+{ is special symbol
 int is keyword
 a is identifier
+= is operator
 5 is identifier
+, is special symbol
 b is identifier
+= is operator
 10 is identifier
+, is special symbol
 sum is identifier
+; is special symbol
 sum is identifier
+= is operator
 a is identifier
++ is operator
 b is identifier
-printfSum is identifier
-dn is identifier
+; is special symbol
+printf is identifier
+( is special symbol
+Sum is identifier
+= is operator
+% is operator
+d is identifier
+n is identifier
+, is special symbol
 sum is identifier
+) is special symbol
+; is special symbol
 return is keyword
 0 is identifier
+; is special symbol
+} is special symbol
