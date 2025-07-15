@@ -22,11 +22,7 @@ b is identifier
 ; is special symbol
 printf is identifier
 ( is special symbol
-Sum is identifier
-= is operator
-% is operator
-d is identifier
-n is identifier
+"Sum = %d\n" is string literal
 , is special symbol
 sum is identifier
 ) is special symbol
@@ -35,3 +31,4 @@ return is keyword
 0 is identifier
 ; is special symbol
 } is special symbol
+Total number of tokens: 33

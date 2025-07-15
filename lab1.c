@@ -2,90 +2,137 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-int isKeyword(char buffer[]) {
+
+int isKeyword(char buffer[])
+{
     char keywords[32][10] = {
         "auto", "break", "case", "char", "const", "continue", "default",
         "do", "double", "else", "enum", "extern", "float", "for", "goto",
         "if", "int", "long", "register", "return", "short", "signed",
         "sizeof", "static", "struct", "switch", "typedef", "union",
-        "unsigned", "void", "volatile", "while"
-    };
+        "unsigned", "void", "volatile", "while"};
 
-    for (int i = 0; i < 32; ++i) {
-        if (strcmp(keywords[i], buffer) == 0) {
+    for (int i = 0; i < 32; ++i)
+    {
+        if (strcmp(keywords[i], buffer) == 0)
+        {
             return 1;
         }
     }
     return 0;
 }
-int isOperator(char ch) {
+
+int isOperator(char ch)
+{
     return (ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
             ch == '=' || ch == '<' || ch == '>' || ch == '%' ||
             ch == '!' || ch == '&' || ch == '|');
 }
-int isSpecialSymbol(char ch) {
+
+int isSpecialSymbol(char ch)
+{
     return (ch == ';' || ch == ',' || ch == '(' || ch == ')' ||
             ch == '{' || ch == '}' || ch == '[' || ch == ']');
 }
-int main() {
+
+int main()
+{
     char ch, buffer[15];
     FILE *fpInput, *fpOutput;
     int j = 0;
+    int tokenCount = 0;
 
     fpInput = fopen("lab1.txt", "r");
     fpOutput = fopen("output.txt", "w");
 
-    if (fpInput == NULL || fpOutput == NULL) {
+    if (fpInput == NULL || fpOutput == NULL)
+    {
         printf("Error opening file.\n");
         return 1;
     }
 
-    while ((ch = fgetc(fpInput)) != EOF) {
-        if (isalnum(ch)) {
+    while ((ch = fgetc(fpInput)) != EOF)
+    {
+        if (isalnum(ch))
+        {
             buffer[j++] = ch;
-            if (j >= 14) {
+            if (j >= 14)
+            {
                 buffer[j] = '\0';
                 j = 0;
                 if (isKeyword(buffer))
                     fprintf(fpOutput, "%s is keyword\n", buffer);
                 else
                     fprintf(fpOutput, "%s is identifier\n", buffer);
+                tokenCount++;
             }
-        } else {
-            if (j != 0) {
+        }
+        else
+        {
+            if (j != 0)
+            {
                 buffer[j] = '\0';
                 j = 0;
                 if (isKeyword(buffer))
                     fprintf(fpOutput, "%s is keyword\n", buffer);
                 else
                     fprintf(fpOutput, "%s is identifier\n", buffer);
+                tokenCount++;
             }
-            if (isOperator(ch)) {
+            if (isOperator(ch))
+            {
                 char next = fgetc(fpInput);
                 if ((ch == '=' && next == '=') ||
                     (ch == '!' && next == '=') ||
                     (ch == '<' && next == '=') ||
-                    (ch == '>' && next == '=')) {
+                    (ch == '>' && next == '='))
+                {
                     fprintf(fpOutput, "%c%c is operator\n", ch, next);
-                } else {
+                    tokenCount++;
+                }
+                else
+                {
                     ungetc(next, fpInput);
                     fprintf(fpOutput, "%c is operator\n", ch);
+                    tokenCount++;
                 }
-            } else if (isSpecialSymbol(ch)) {
+            }
+            else if (isSpecialSymbol(ch))
+            {
                 fprintf(fpOutput, "%c is special symbol\n", ch);
+                tokenCount++;
+            }
+            else if (ch == '"')
+            {
+                // Handle string literals as one token
+                fprintf(fpOutput, "\"");
+                tokenCount++;
+                while ((ch = fgetc(fpInput)) != EOF && ch != '"')
+                {
+                    fputc(ch, fpOutput);
+                }
+                fprintf(fpOutput, "\" is string literal\n");
             }
         }
     }
-    if (j != 0) {
+
+    if (j != 0)
+    {
         buffer[j] = '\0';
         if (isKeyword(buffer))
             fprintf(fpOutput, "%s is keyword\n", buffer);
         else
             fprintf(fpOutput, "%s is identifier\n", buffer);
+        tokenCount++;
     }
+
+    fprintf(fpOutput, "Total number of tokens: %d\n", tokenCount);
+
     fclose(fpInput);
     fclose(fpOutput);
+
     printf("Output run successfully. Please check output.txt.\n");
     system("notepad output.txt");
+
     return 0;
 }
